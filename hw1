@@ -12,7 +12,7 @@ vector<int> target(27);
 //define Node structure which contain 3 items:
 //1.current state
 //2.h function 
-//3.g function
+//3.g functi
 
 struct Node{   
     vector<int> state;  //current state of this node;
