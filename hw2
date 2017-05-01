@@ -186,7 +186,7 @@ bool SetInfo(Node* newnode,Node* ExpandNode,Node* root,string c){
 }
 
 int main(){
-    set<vector<int> > record;
+    set<vector<int> > record[27];
     Node* root = new Node; //root of the tree
     Node* ExpandNode; // the node to be expanded
     priority_queue<Node*,vector<Node*>,cmp >que;
@@ -201,7 +201,7 @@ int main(){
     HeuristicFunction(root);
     que.push(root);
     s = root->state;
-    record.insert(s);
+    record[root->bla_layer * layer * size + root->bla_x * size + root->bla_y ].insert(s);
     while(!que.empty() || !PreExpandque .empty()){
         if(!PreExpandque.empty()){
             ExpandNode = PreExpandque.top();
@@ -219,16 +219,17 @@ int main(){
                 Node* newnode = new Node;
                 if(SetInfo(newnode,ExpandNode,root,"U")){//set information
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
                         free(newnode);
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -240,16 +241,17 @@ int main(){
                 Node* newnode = new Node;
                 if(SetInfo(newnode,ExpandNode,root,"D")){
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
-                        free(newnode);
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
+                        delete newnode;
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -261,16 +263,17 @@ int main(){
                 Node* newnode = new Node;
                 if(SetInfo(newnode,ExpandNode,root,"L")){//set information)
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
-                        free(newnode);
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
+                        delete newnode;
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -283,16 +286,17 @@ int main(){
                 Node* newnode = new Node;
                 if(SetInfo(newnode,ExpandNode,root,"R")){
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
-                        free(newnode);
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
+                        delete newnode;
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -304,16 +308,17 @@ int main(){
                 Node* newnode = new Node;
                 if( SetInfo(newnode,ExpandNode,root,"F") ){
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
-                        free(newnode);
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
+                        delete newnode;
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -326,16 +331,17 @@ int main(){
                 if(SetInfo(newnode,ExpandNode,root,"B")){
                     //insert into queue
                     s = newnode->state;
-                    if(record.find(s) != record.end()){
-                        free(newnode);
+                    int p = newnode->bla_layer * layer * size + newnode->bla_x * size + newnode->bla_y;
+                    if(record[p].find(s) != record[p].end()){
+                        delete newnode;
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            record.insert(s);
+                            record[p].insert(s);
                             PreExpandque.push(newnode);
                         }
                         else{
-                            record.insert(s);
+                            record[p].insert(s);
                             que.push(newnode);
                         }
                     }
@@ -343,7 +349,7 @@ int main(){
             }
         }
         if(ExpandNode != root){
-            free(ExpandNode);
+            delete ExpandNode;
         }
     }
     finish = clock();
