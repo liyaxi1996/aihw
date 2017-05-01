@@ -2,7 +2,10 @@
 #include <iostream>
 #include <queue>
 #include <set>
+#include <time.h>
+
 using namespace std;
+
 #define size 3
 #define layer 3
 
@@ -12,7 +15,7 @@ vector<int> target(27);
 //define Node structure which contain 3 items:
 //1.current state
 //2.h function 
-//3.g functi
+//3.g function
 
 struct Node{   
     vector<int> state;  //current state of this node;
@@ -152,122 +155,32 @@ bool SetInfo(Node* newnode,Node* ExpandNode,Node* root,string c){
     return true;
 }
 
-int PreExpansion(Node* ExpandNode,Node* root,set<vector<int>> &record,priority_queue<Node*,vector<Node*>,cmp> &que){
-    vector<int> s;
-    if(CompareState(ExpandNode)){
-        return 0;
-    }
-    if(ExpandNode->bla_x != 0 ){ //up
-        if(ExpandNode->state[ExpandNode->bla_layer*layer*size +  ((ExpandNode->bla_x)-1) * size + ExpandNode->bla_y] != -1){
-            Node* newnode = new Node;
-            if(SetInfo(newnode,ExpandNode,root,"U")){//set information
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            }
-        }
-    }
-    if(ExpandNode->bla_x != 2){ //down
-        if(ExpandNode->state[ExpandNode->bla_layer*layer*size +  ((ExpandNode->bla_x)+1) * size + ExpandNode->bla_y]){
-            Node* newnode = new Node;
-            if(SetInfo(newnode,ExpandNode,root,"D")){
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            } //set information
-        }
-    }
-    if(ExpandNode->bla_y != 0){ //left
-        if(ExpandNode->state[ExpandNode->bla_layer * layer * size +  ExpandNode->bla_x * size + (ExpandNode->bla_y) - 1] != -1){
-            Node* newnode = new Node;
-            if(SetInfo(newnode,ExpandNode,root,"L")){//set information)
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            }
-
-        }
-    }
-    if(ExpandNode->bla_y != 2){ //right
-        if(ExpandNode->state[ExpandNode->bla_layer * layer * size +  ExpandNode->bla_x * size + (ExpandNode->bla_y) + 1] != -1){
-            Node* newnode = new Node;
-            if(SetInfo(newnode,ExpandNode,root,"R")){
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            } //set information
-        }
-    }
-    if(ExpandNode->bla_layer != 0){ //forward
-        if(ExpandNode->state[((ExpandNode->bla_layer) - 1)*layer*size + ExpandNode->bla_x * size + ExpandNode->bla_y] != -1){
-            Node* newnode = new Node;
-            if( SetInfo(newnode,ExpandNode,root,"F") ){
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            }//set information
-        }
-    }
-    if(ExpandNode->bla_layer != 2){ //backward
-        if(ExpandNode->state[((ExpandNode->bla_layer) + 1)*layer*size + ExpandNode->bla_x * size + ExpandNode->bla_y] != -1){
-            Node* newnode = new Node;
-            if(SetInfo(newnode,ExpandNode,root,"B")){
-                //insert into queue
-                s = newnode->state;
-                if(record.find(s) != record.end()){
-                    free(newnode);
-                }
-                else{
-                    record.insert(s);
-                    que.push(newnode);
-                }
-            } //set information
-        }
-    }
-    return 1;
-}
-
 int main(){
     set<vector<int>> record;
     Node* root = new Node; //root of the tree
     Node* ExpandNode; // the node to be expanded
     priority_queue<Node*,vector<Node*>,cmp>que;
+    priority_queue<Node*,vector<Node*>,cmp>PreExpandque;
     vector<int> s;
+    clock_t start, finish;
+    double totaltime;
     ReadFromFile(root);
+    start = clock();
     root->g = 0;
     root->process = " ";
     HeuristicFunction(root);
     que.push(root);
     s = root->state;
     record.insert(s);
-    while(!que.empty()){
-        ExpandNode = que.top();
-        que.pop();
+    while(!que.empty() || !PreExpandque .empty()){
+        if(!PreExpandque.empty()){
+            ExpandNode = PreExpandque.top();
+            PreExpandque.pop();
+        }
+        else{
+            ExpandNode = que.top();
+            que.pop();
+        }
         if(CompareState(ExpandNode)){
             break;
         }
@@ -281,15 +194,8 @@ int main(){
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            int pre = PreExpansion(newnode,root,record,que);
-                            if( pre == 0){
-                                ExpandNode = newnode;
-                                break;
-                            }
-                            else{
-                                record.insert(s);
-                                free(newnode);
-                            }
+                            record.insert(s);
+                            PreExpandque.push(newnode);
                         }
                         else{
                             record.insert(s);
@@ -309,15 +215,8 @@ int main(){
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            int pre = PreExpansion(newnode,root,record,que);
-                            if( pre == 0){
-                                ExpandNode = newnode;
-                                break;
-                            }
-                            else {
-                                record.insert(s);
-                                free(newnode);
-                            }
+                            record.insert(s);
+                            PreExpandque.push(newnode);
                         }
                         else{
                             record.insert(s);
@@ -337,15 +236,8 @@ int main(){
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            int pre = PreExpansion(newnode,root,record,que);
-                            if( pre == 0){
-                                ExpandNode = newnode;
-                                break;
-                            }
-                            else {
-                                record.insert(s);
-                                free(newnode);
-                            }
+                            record.insert(s);
+                            PreExpandque.push(newnode);
                         }
                         else{
                             record.insert(s);
@@ -366,15 +258,8 @@ int main(){
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            int pre = PreExpansion(newnode,root,record,que);
-                            if( pre == 0){
-                                ExpandNode = newnode;
-                                break;
-                            }
-                            else{
-                                record.insert(s);
-                                free(newnode);
-                            }
+                            record.insert(s);
+                            PreExpandque.push(newnode);
                         }
                         else{
                             record.insert(s);
@@ -394,15 +279,8 @@ int main(){
                    }
                    else{
                        if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                           int pre = PreExpansion(newnode,root,record,que);
-                           if( pre == 0){
-                               ExpandNode = newnode;
-                               break;
-                           }
-                           else{
-                               record.insert(s);
-                               free(newnode);
-                           }
+                           record.insert(s);
+                           PreExpandque.push(newnode);
                        }
                        else{
                            record.insert(s);
@@ -423,15 +301,8 @@ int main(){
                     }
                     else{
                         if(newnode->g + newnode->h < ExpandNode->g + ExpandNode->h){
-                            int pre = PreExpansion(newnode,root,record,que);
-                            if( pre == 0){
-                                ExpandNode = newnode;
-                                break;
-                            }
-                            else {
-                                record.insert(s);
-                                free(newnode);
-                            }
+                            record.insert(s);
+                            PreExpandque.push(newnode);
                         }
                         else{
                             record.insert(s);
@@ -445,6 +316,9 @@ int main(){
             free(ExpandNode);
         }
     }
+    finish = clock();
+    totaltime = (double)(finish-start)/CLOCKS_PER_SEC;
+    printf("%f\n",totaltime);
     printf("step = %d\n", ExpandNode->g);
     cout<<ExpandNode->process<<endl;
     return 0;
